@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.TimeUnit;
 
 import rx.Observable;
 import rx.Observer;
@@ -43,8 +44,7 @@ public enum UserListModule {
                 if (o instanceof Events.RefreshUserListEvent) {
                     Log.d("UserListModule", "refresh button clicked");
                     if (mUserCache.size() < Common.DISPLAY_USER_LIST_SIZE) {
-                        getUserListFromServerObservable()
-                        .subscribe(new Observer<List<User>>() {
+                        getUserListFromServerObservable().subscribe(new Observer<List<User>>() {
                             @Override
                             public void onCompleted() {
 
@@ -68,6 +68,32 @@ public enum UserListModule {
             }
         }));
         mSubscription.add(mRefreshEventEmitter.connect());
+
+        Observable.interval(30, TimeUnit.SECONDS).flatMap(new Func1<Long, Observable<List<User>>>() {
+            @Override
+            public Observable<List<User>> call(Long aLong) {
+                return getUserListFromServerObservable();
+            }
+        }).subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread())
+        .subscribe(new Observer<List<User>>() {
+            @Override
+            public void onCompleted() {
+
+            }
+
+            @Override
+            public void onError(Throwable e) {
+
+            }
+
+            @Override
+            public void onNext(List<User> users) {
+                addUsers(users);
+                if (RxBus.INSTANCE.hasObservers()) {
+                    RxBus.INSTANCE.send(new Events.NewDataAddedEvent(users.size()));
+                }
+            }
+        });
     }
 
     private void broadcastNextUserBatch() {

@@ -15,4 +15,12 @@ public class Events {
             this.displayList = displayList;
         }
     }
+
+    public static class NewDataAddedEvent {
+        public int size;
+        public NewDataAddedEvent(int size) {
+            this.size = size;
+        }
+    }
+
 }

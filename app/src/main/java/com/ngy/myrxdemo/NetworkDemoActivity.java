@@ -18,12 +18,8 @@ import com.ngy.myrxdemo.data.Events;
 import com.ngy.myrxdemo.data.User;
 import com.squareup.picasso.Picasso;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
 import rx.Observable;
@@ -95,6 +91,11 @@ public class NetworkDemoActivity extends Activity {
                 if (o instanceof Events.NewDisplayListEvent) {
                     Events.NewDisplayListEvent event = (Events.NewDisplayListEvent) o;
                     mUserAdapter.setUserList(event.displayList);
+                } else if (o instanceof  Events.NewDataAddedEvent) {
+                    Events.NewDataAddedEvent event = (Events.NewDataAddedEvent) o;
+                    mClickInfo.setText(String.format("%d more users added to cache at %d", event.size, System.currentTimeMillis()));
+                } else {
+
                 }
             }
         }));
@@ -170,22 +171,6 @@ public class NetworkDemoActivity extends Activity {
         }
     }
 
-
-    public List<User> parseUserList(String respStr) {
-        List<User> userList = new ArrayList<>();
-        try {
-            JSONArray jsonArray = new JSONArray(respStr);
-            for (int i = 0; i < jsonArray.length(); i++) {
-                User user = new User();
-                user.icon = jsonArray.getJSONObject(i).getString("avatar_url");
-                user.name = jsonArray.getJSONObject(i).getString("login");
-                userList.add(user);
-            }
-            return userList;
-        } catch (JSONException e) {
-            return null;
-        }
-    }
 
     @Override
     protected void onDestroy() {

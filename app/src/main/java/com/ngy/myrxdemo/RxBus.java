@@ -1,6 +1,7 @@
 package com.ngy.myrxdemo;
 
 import rx.Observable;
+import rx.Observer;
 import rx.subjects.PublishSubject;
 import rx.subjects.SerializedSubject;
 import rx.subjects.Subject;
@@ -19,6 +20,10 @@ public enum RxBus {
     }
 
     public Observable<Object> toObserverable() {
+        return _bus;
+    }
+
+    public Observer<Object> toObserver() {
         return _bus;
     }
 
